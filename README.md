@@ -13,5 +13,6 @@ A CICD piplines have been built for both APIs with following:
 - Sonar Analysis Report
 - Docker build and push
 - deploy to Kubernetes
-With access to Granfana with Loki & Prometheus 
+
+Has access to Granfana with Loki & Prometheus 
 
