@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reimb-api
+  labels:
+    app: reimb-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reimb-api
+  template:
+    metadata:
+      labels:
+        app: reimb-api
+    spec:
+      containers:
+        - image: olvmky.azurecr.io/azure-reimb-api:latest
+          imagePullPolicy: Always
+          name: reimb-api
+          ports:
+            - containerPort: 8888
+          env:
+            - name: MAIL_URL
+              value: http://20.118.4.179:8088/mail
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: reimb-service
+  name: reimb-service
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+    - name: reimb-port
+      port: 8888
+      targetPort: 8888
+  selector:
+    app: reimb-api
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: reimb-service-monitor
+spec:
+  selector:
+    matchLabels:
+      service: reimb-service
+  endpoints:
+    - port: reimb-port
+      path: "/actuator/prometheus"
+  
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-api
+  labels:
+    app: email-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-api
+  template:
+    metadata:
+      labels:
+        app: email-api
+    spec:
+      containers:
+        - image: olvmky.azurecr.io/azure-email-api:latest
+          imagePullPolicy: Always
+          name: email-api
+          ports:
+            - containerPort: 8088
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: email-service
+  name: email-service
+  namespace: default
+spec:
+  selector:
+    app: email-api
+  type: LoadBalancer
+  ports:
+    - name: email-port
+      port: 8088
+      targetPort: 8088
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: email-service-monitor
+spec:
+  selector:
+    matchLabels:
+      service: email-service
+  endpoints:
+    - port: email-port
+      path: "/actuator/prometheus"

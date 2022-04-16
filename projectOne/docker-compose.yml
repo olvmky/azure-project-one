@@ -1,0 +1,47 @@
+version: "3.9"
+
+networks:
+  project-one-network:
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - '3000:3000'
+    container_name: grafana
+    depends_on:
+      - loki
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - '3100:3100'
+    container_name: loki
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./container_config/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+    command: -config.file=/etc/promtail/promtail-config.yaml
+
+  p1-reimb-api:
+    image: olvmky/p1-reimb-api
+    ports:
+      - '8888:8888'
+    container_name: p1-reimb-api
+    environment:
+      - MAIL_URL=http:/p1-email-api:8088/mail
+    networks:
+      - project-one-network
+    logging:
+      driver: json-file
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  p1-email-api:
+    image: olvmky/p1-email-api
+    container_name: p1-email-api
+    networks:
+      - project-one-network

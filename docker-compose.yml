@@ -1,0 +1,30 @@
+version: "3.9"
+
+networks:
+  project-one-network:
+
+services:
+  azure-reimb-api:
+    image: olvmky/azure-reimb-api
+    ports:
+      - '8888:8888'
+    container_name: azure-reimb-api
+    environment:
+      - MAIL_URL=http://azure-email-api:8088/mail
+      - spring.output.ansi.enabled=ALWAYS
+    networks:
+      - project-one-network
+    logging:
+      driver: json-file
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  azure-email-api:
+    image: olvmky/azure-email-api
+    container_name: azure-email-api
+    logging:
+      driver: json-file
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - project-one-network

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reimb-api-deployment
+  labels:
+    app: project1-reimb-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: project1-reimb-api
+  template:
+    metadata:
+      labels:
+        app: project1-reimb-api
+    spec:
+      containers:
+        - image: olvmky/reimb-api
+          imagePullPolicy: Always
+          name: project1-reimb-api
+          ports:
+            - containerPort: 8888
+        - name: email-api
+          image: olvmky/email-api
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8088
+          env:
+            - name: EMAIL_URL
+              value: http://localhost:8088
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reimb-api-service
+spec:
+  selector:
+    app: project1-reimb-api
+  type: LoadBalancer
+  ports:
+    - port: 8888
+      targetPort: 8888
+
+

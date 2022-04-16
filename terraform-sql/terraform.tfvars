@@ -1,0 +1,8 @@
+resource_group_name     = "primer-rg"
+resource_group_location = "centralus"
+# app_service_plan_name   = "appserviceplan-web-21"
+# app_service_name        = "terraform-web-021"
+sql_server_name         = "offorsql"
+sql_database_name       = "primerdb"
+sql_admin_login         = "primer"
+sql_admin_password      = "Dreams16american"

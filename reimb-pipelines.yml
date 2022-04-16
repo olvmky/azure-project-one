@@ -1,0 +1,167 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Test
+  jobs:
+  - job: Testing_and_Build
+    displayName: Testing and Build with mvn
+    steps:   
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'sonarcloud'
+        organization: 'olvmky-azure'
+        scannerMode: 'Other'
+        extraProperties: |
+          # Additional properties that will be passed to the scanner,
+          # Put one key=value per line, example:
+          # sonar.exclusions=**/*.bin
+          sonar.projectKey=olvmky_project
+          sonar.projectName=project
+    - task: Maven@3
+      displayName: Clean and Install MVN reimb-api
+      inputs:
+        mavenPomFile: 'projectOne/pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        publishJUnitResults: false
+        goals: 'clean install'
+    - task: Maven@3
+      displayName: Clean and Install MVN email-api
+      inputs:
+        mavenPomFile: 'project-one-email/pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        publishJUnitResults: false
+        goals: 'clean install'
+    - task: Maven@3
+      displayName: mvn Package for reimb-api
+      inputs:
+        mavenPomFile: 'projectOne/pom.xml'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+        checkStyleRunAnalysis: true
+        sqMavenPluginVersionChoice: 'latest'
+        goals: 'package'
+    
+    - task: Maven@3
+      displayName: mvn Package for email-api
+      inputs:
+        mavenPomFile: 'project-one-email/pom.xml'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+        checkStyleRunAnalysis: true
+        sqMavenPluginVersionChoice: 'latest'
+        goals: 'package'
+    
+    - task: PublishTestResults@2
+      displayName: Publish test result 
+      inputs:
+        testResultsFiles: '**/TEST-*.xml'
+    
+    - task: Maven@3
+      displayName: Running Sonar for reimb-api
+      inputs:
+        mavenPomFile: 'projectOne/pom.xml'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.11'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: true
+        checkStyleRunAnalysis: false
+        sqMavenPluginVersionChoice: 'latest'
+        goals: 'sonar:sonar'
+        
+    - task: Maven@3
+      displayName: Running Sonar for email-api
+      inputs:
+        mavenPomFile: 'project-one-email/pom.xml'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.11'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: true
+        checkStyleRunAnalysis: false
+        sqMavenPluginVersionChoice: 'latest'
+        goals: 'sonar:sonar'
+    
+    - task: SonarCloudPublish@1
+      displayName: Publish Sonar Analysis Report
+      inputs:
+        pollingTimeoutSec: '300'
+
+- stage: Build
+  displayName: Build and push by Docker
+  jobs:
+  - job: Build_and_Push
+    displayName: Build and Push
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      displayName: build and push images for reimb-api
+      inputs:
+        containerRegistry: 'dockerhub'
+        repository: 'olvmky/azure-reimb-api'
+        command: 'buildAndPush'
+        Dockerfile: 'projectOne/Dockerfile'
+        tags: |
+          $(Build.BuildId)
+          latest
+    - task: Docker@2
+      displayName: build and push images for email-api
+      inputs:
+        containerRegistry: 'dockerhub'
+        repository: 'olvmky/azure-email-api'
+        command: 'buildAndPush'
+        Dockerfile: 'project-one-email/Dockerfile'
+        tags: |
+          $(Build.BuildId)
+          latest
+
+- stage: Deploy
+  displayName: Deploy by k8s
+  jobs:
+  - job: Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: KubernetesManifest@0
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: 'k8s'
+        namespace: 'default'
+        manifests: 'deployment.yaml'
+    
+
+
+
+    

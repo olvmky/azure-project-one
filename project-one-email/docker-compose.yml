@@ -1,0 +1,25 @@
+version: "3.9"
+
+networks:
+  project-one-network:
+
+services:
+  p1-reimb-api:
+    image: olvmky/p1-reimb-api
+    ports:
+      - '8888:8888'
+    container_name: p1-reimb-api
+    environment:
+      - MAIL_URL=http:/p1-email-api:8088/mail
+    networks:
+      - project-one-network
+    logging:
+      driver: json-file
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  p1-email-api:
+    image: olvmky/p1-email-api
+    container_name: p1-email-api
+    networks:
+      - project-one-network

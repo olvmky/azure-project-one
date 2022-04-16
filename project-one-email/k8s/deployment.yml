@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-api-deployment
+  labels:
+    app: project1-email-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: project1-email-api
+  template:
+    metadata:
+      labels:
+        app: project1-email-api
+    spec:
+      containers:
+        - image: olvmky/email-api
+          imagePullPolicy: Always
+          name: project1-email-api
+          ports:
+            - containerPort: 8088
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-api-service
+spec:
+  selector:
+    app: project1-email-api
+  ports:
+    - port: 8088
+      targetPort: 8088
+
+

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.example.projectOne.ServiceReimbFormTest" time="0.027" tests="3" errors="0" skipped="0" failures="0">
+  <properties/>
+  <testcase name="shouldReturnSavedModel" classname="com.example.projectOne.ServiceReimbFormTest" time="0.018"/>
+  <testcase name="shouldReturnAllModelsbyId" classname="com.example.projectOne.ServiceReimbFormTest" time="0.005"/>
+  <testcase name="shouldReturnAllModels" classname="com.example.projectOne.ServiceReimbFormTest" time="0.001"/>
+</testsuite>

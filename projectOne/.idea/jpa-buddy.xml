@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JpaBuddyIdeaProjectConfig">
+    <option name="defaultUnitInitialized" value="true" />
+    <option name="reverseEngineeringLastDbConnectionId" value="6370acca-e784-4ff9-ba05-af661ebe7941" />
+    <option name="reLastEntityCreationPackage" value="src/main/java/com/example/projectOne/DTO" />
+    <reUseDbSnapshotConnections>
+      <dbConnection id="6370acca-e784-4ff9-ba05-af661ebe7941" />
+    </reUseDbSnapshotConnections>
+    <option name="newEntityIdStrategy" />
+    <option name="reIgnoreSlowDbConnections">
+      <ignoreDs id="6370acca-e784-4ff9-ba05-af661ebe7941" />
+    </option>
+  </component>
+</project>
