@@ -9,7 +9,8 @@ Finance managers are authorized to approve and deny requests for expense reimbur
 
 ## Application Details
 Build on two different APIs. 
-Connected by Azure Postgre Datbase on jdbc:postgresql://project-one.postgres.database.azure.com:5432/project-one
+Connected by Azure Postgre Datbase:
+jdbc:postgresql://project-one.postgres.database.azure.com:5432/project-one
 
 Scripts can found from projectOne/Scripts.sql
 
